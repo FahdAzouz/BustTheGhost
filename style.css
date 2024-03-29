@@ -1,0 +1,79 @@
+/* Overall page styling */
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #e0f7fa;
+    /* Light background to complement the theme */
+    font-family: 'Arial', sans-serif;
+}
+
+#game-container {
+    text-align: center;
+    background-color: #fff;
+    /* Light background for the game container */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#grid-container {
+    display: grid;
+    grid-template-columns: repeat(12, 40px);
+    grid-template-rows: repeat(9, 40px);
+    gap: 5px;
+    justify-content: center;
+    /* Center grid in its container */
+    margin-bottom: 20px;
+    /* Space between grid and buttons */
+}
+
+.grid-cell {
+    width: 40px;
+    height: 40px;
+    background-color: #ADD8E6;
+    /* Light blue for cells */
+    border-radius: 5px;
+    /* Rounded corners for cells */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    /* Smooth transition for hover effect */
+}
+
+.grid-cell:hover {
+    background-color: #0077B6;
+    /* Ocean blue on hover */
+}
+
+button {
+    background-color: #0077B6;
+    /* Ocean blue for buttons */
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    margin: 0 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #005f8c;
+    /* Darker shade on hover */
+}
+
+#status {
+    margin-top: 20px;
+}
+
+.probability-display {
+    color: #060101;
+    /* Ensure probability text is visible */
+    font-size: 0.8rem;
+}
