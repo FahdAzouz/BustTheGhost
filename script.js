@@ -96,35 +96,31 @@ document.addEventListener('DOMContentLoaded', () => {
         let totalProbability = 0;
         const newProbabilities = {};
     
-        // Calculate new, unnormalized probabilities
+        // Calculate new probabilities based on the sensor reading at the clicked location
         for (let row = 0; row < gridSize.rows; row++) {
             for (let col = 0; col < gridSize.cols; col++) {
                 const key = `${row}-${col}`;
                 const distance = computeDistance(row, col, clickedRow, clickedCol);
-                const likelihood = sensorProbabilities[distance] ? sensorProbabilities[distance][sensorColor] : 0;
+                const likelihood = sensorProbabilities[distance][sensorColor];
                 const prior = probabilities[key];
-                const posterior = likelihood * prior;
-                newProbabilities[key] = posterior;
-                totalProbability += posterior;
-            }
-        }
-    
-        // If totalProbability is 0, apply a minimal adjustment to avoid freezing
-        if (totalProbability === 0) {
-            console.warn('Adjusting for zero total probability.');
-            for (const key in probabilities) {
-                // Apply a very small uniform probability to all cells, ensuring some dynamic update
-                newProbabilities[key] = 1 / (gridSize.rows * gridSize.cols);
-                totalProbability += newProbabilities[key];
+                const unnormalizedPosterior = likelihood * prior;
+                newProbabilities[key] = unnormalizedPosterior;
+                totalProbability += unnormalizedPosterior;
             }
         }
     
         // Normalize the probabilities
+        if (totalProbability === 0) {
+            // Handle zero total probability if it occurs
+            console.error('Total probability is zero. Normalization cannot proceed.');
+            return; // Optionally, handle this case with a fallback mechanism
+        }
+    
         for (const key in newProbabilities) {
             probabilities[key] = newProbabilities[key] / totalProbability;
         }
     
-        updateProbabilityDisplay();
+        updateProbabilityDisplay(); // Make sure to update the display after changing the probabilities
     }
 
     // Handle clicking on a cell
