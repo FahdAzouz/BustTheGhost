@@ -4,11 +4,24 @@ body {
     padding: 0;
     display: flex;
     justify-content: center;
+    flex-direction: column;
     align-items: center;
     height: 100vh;
-    background-color: #e0f7fa;
+    background-color: #b3bdbe;
     /* Light background to complement the theme */
     font-family: 'Arial', sans-serif;
+}
+
+#title {
+    text-align: center;
+    margin: 0;
+    padding-top: 20px;
+    /* You can adjust this value as needed */
+    font-size: 3em;
+    padding-bottom: 20px;
+    /* Adjust font size as desired */
+    color: #9c6def;
+    /* Your chosen theme color */
 }
 
 #game-container {
