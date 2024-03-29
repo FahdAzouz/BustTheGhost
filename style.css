@@ -15,12 +15,13 @@ body {
 #title {
     text-align: center;
     margin: 0;
+    font: bold 2em 'Copperplate', Fantasy;
     padding-top: 20px;
     /* You can adjust this value as needed */
     font-size: 3em;
     padding-bottom: 20px;
     /* Adjust font size as desired */
-    color: #9c6def;
+    color: #04000a;
     /* Your chosen theme color */
 }
 
