@@ -95,31 +95,38 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateProbabilities(clickedRow, clickedCol, sensorColor) {
         let totalProbability = 0;
         const newProbabilities = {};
-    
+
         // Calculate new probabilities based on the sensor reading at the clicked location
         for (let row = 0; row < gridSize.rows; row++) {
             for (let col = 0; col < gridSize.cols; col++) {
                 const key = `${row}-${col}`;
                 const distance = computeDistance(row, col, clickedRow, clickedCol);
-                const likelihood = sensorProbabilities[distance][sensorColor];
-                const prior = probabilities[key];
-                const unnormalizedPosterior = likelihood * prior;
-                newProbabilities[key] = unnormalizedPosterior;
-                totalProbability += unnormalizedPosterior;
+                
+                if (sensorProbabilities[distance] && sensorProbabilities[distance][sensorColor] !== undefined) {
+                    const likelihood = sensorProbabilities[distance][sensorColor];
+                    const prior = probabilities[key];
+                    const unnormalizedPosterior = likelihood * prior;
+                    newProbabilities[key] = unnormalizedPosterior;
+                    totalProbability += unnormalizedPosterior;
+                } else {
+                    // If the color for the given distance is not defined, handle the error
+                    console.error(`No sensor probability defined for distance ${distance} and color ${sensorColor}.`);
+                    // You may decide to skip this iteration, set a default likelihood, or handle the error in another way
+                }
             }
         }
-    
+
         // Normalize the probabilities
         if (totalProbability === 0) {
             // Handle zero total probability if it occurs
             console.error('Total probability is zero. Normalization cannot proceed.');
             return; // Optionally, handle this case with a fallback mechanism
         }
-    
+
         for (const key in newProbabilities) {
             probabilities[key] = newProbabilities[key] / totalProbability;
         }
-    
+
         updateProbabilityDisplay(); // Make sure to update the display after changing the probabilities
     }
 
@@ -127,7 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleCellClick(row, col) {
 
         lastClickedCell = { row, col };
-
         if (attempts > 0) {
             const distance = computeDistance(row, col, ghostPosition.row, ghostPosition.col);
             const color = getSensorColor(distance);
@@ -135,7 +141,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log(`Distance: ${distance}, Color: ${color}`); // For debugging
             updateCellColor(row, col, color);
             updateScore(-1);
-
+            console.log(`Clicked cell at row ${row}, col ${col}, with color ${color}`);
+            
             if (isPeepOn) {
                 // Additional logic for peeping (showing probabilities) can be added here
                 updateProbabilityDisplay();
@@ -200,14 +207,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Select a color based on the conditional probabilities for the given distance
         const randomNum = Math.random();
+        const selectedColor = 'green'; // Default color in case of issues with probabilities
         let sum = 0;
         for (const { color, probability } of probabilities[distance]) {
             sum += probability;
             if (randomNum <= sum) {
+                console.log(`Sensor color for distance ${distance}: ${color}`); // For debugging
                 return color;
             }
         }
-
+        console.log(`Sensor color for distance ${distance}: ${selectedColor}`);
         // Fallback color if something goes wrong with the probabilities
         return 'green';
     }
@@ -215,7 +224,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update the cell color based on sensor reading
     function updateCellColor(row, col, color) {
         const cell = document.querySelector(`.grid-cell[data-row="${row}"][data-col="${col}"]`);
-        cell.style.backgroundColor = color;
+        if (cell) {
+            cell.style.backgroundColor = color;
+        } else {
+            console.error(`Could not find cell at row ${row}, col ${col}`); // Debugging line
+        }
     }
 
     // Update the score
