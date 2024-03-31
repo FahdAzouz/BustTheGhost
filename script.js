@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
             for (let col = 0; col < gridSize.cols; col++) {
                 const key = `${row}-${col}`;
                 const distance = computeDistance(row, col, clickedRow, clickedCol);
-                
+
                 if (sensorProbabilities[distance] && sensorProbabilities[distance][sensorColor] !== undefined) {
                     const likelihood = sensorProbabilities[distance][sensorColor];
                     const prior = probabilities[key];
@@ -136,13 +136,13 @@ document.addEventListener('DOMContentLoaded', () => {
         lastClickedCell = { row, col };
         if (attempts > 0) {
             const distance = computeDistance(row, col, ghostPosition.row, ghostPosition.col);
-            const color = getSensorColor(distance);
+            const color = DistanceSense(1, 2, distance, 1, 1);
             updateProbabilities(row, col, color);
             console.log(`Distance: ${distance}, Color: ${color}`); // For debugging
             updateCellColor(row, col, color);
             updateScore(-1);
             console.log(`Clicked cell at row ${row}, col ${col}, with color ${color}`);
-            
+
             if (isPeepOn) {
                 // Additional logic for peeping (showing probabilities) can be added here
                 updateProbabilityDisplay();
@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Updated getSensorColor function to use conditional probability distributions
-    function getSensorColor(distance) {
+    function DistanceSense(xclk, yclk, dist, gx, gy) {
         // Example conditional probabilities for when the distance is 3
         const probabilities = {
             0: [
@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // Default to maximum distance if no specific probabilities are defined for the current distance
-        if (!probabilities[distance]) {
+        if (!probabilities[dist]) {
             return 'green'; // Assuming 'green' is the default for unknown or large distances
         }
 
@@ -209,14 +209,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const randomNum = Math.random();
         const selectedColor = 'green'; // Default color in case of issues with probabilities
         let sum = 0;
-        for (const { color, probability } of probabilities[distance]) {
+        for (const { color, probability } of probabilities[dist]) {
             sum += probability;
             if (randomNum <= sum) {
-                console.log(`Sensor color for distance ${distance}: ${color}`); // For debugging
+                console.log(`Sensor color for distance ${dist}: ${color}`); // For debugging
                 return color;
             }
         }
-        console.log(`Sensor color for distance ${distance}: ${selectedColor}`);
+        console.log(`Sensor color for distance ${dist}: ${selectedColor}`);
         // Fallback color if something goes wrong with the probabilities
         return 'green';
     }
