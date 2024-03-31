@@ -49,16 +49,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Randomly place the ghost in one of the cells
     function placeGhost() {
-        const row = Math.floor(Math.random() * gridSize.rows);
-        const col = Math.floor(Math.random() * gridSize.cols);
-        ghostPosition = { row, col };
-        console.log(`Ghost at Row: ${row}, Col: ${col}`); // For debugging
+        const xg = Math.floor(Math.random() * gridSize.rows);
+        const yg = Math.floor(Math.random() * gridSize.cols);
+        ghostPosition = { row: xg, col: yg };
+        console.log(`Ghost at Row: ${xg}, Col: ${yg}`); // For debugging
     }
     // Add a global object to store the probabilities
     let probabilities = {};
 
     // Initialize or reset the probabilities for all cells
-    function initProbabilities() {
+    function ComputeInitialPriorProbabilities() {
         probabilities = {};
         for (let row = 0; row < gridSize.rows; row++) {
             for (let col = 0; col < gridSize.cols; col++) {
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function updateProbabilities(clickedRow, clickedCol, sensorColor) {
+    function UpdatePosteriorGhostLocationProbabilities(Color, xclk, yclk) {
         let totalProbability = 0;
         const newProbabilities = {};
 
@@ -100,17 +100,17 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let row = 0; row < gridSize.rows; row++) {
             for (let col = 0; col < gridSize.cols; col++) {
                 const key = `${row}-${col}`;
-                const distance = computeDistance(row, col, clickedRow, clickedCol);
+                const distance = computeDistance(row, col, xclk, yclk);
 
-                if (sensorProbabilities[distance] && sensorProbabilities[distance][sensorColor] !== undefined) {
-                    const likelihood = sensorProbabilities[distance][sensorColor];
+                if (sensorProbabilities[distance] && sensorProbabilities[distance][Color] !== undefined) {
+                    const likelihood = sensorProbabilities[distance][Color];
                     const prior = probabilities[key];
                     const unnormalizedPosterior = likelihood * prior;
                     newProbabilities[key] = unnormalizedPosterior;
                     totalProbability += unnormalizedPosterior;
                 } else {
                     // If the color for the given distance is not defined, handle the error
-                    console.error(`No sensor probability defined for distance ${distance} and color ${sensorColor}.`);
+                    console.error(`No sensor probability defined for distance ${distance} and color ${Color}.`);
                     // You may decide to skip this iteration, set a default likelihood, or handle the error in another way
                 }
             }
@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (attempts > 0) {
             const distance = computeDistance(row, col, ghostPosition.row, ghostPosition.col);
             const color = DistanceSense(1, 2, distance, 1, 1);
-            updateProbabilities(row, col, color);
+            UpdatePosteriorGhostLocationProbabilities(color, row, col);
             console.log(`Distance: ${distance}, Color: ${color}`); // For debugging
             updateCellColor(row, col, color);
             updateScore(-1);
@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function initGame() {
         createGrid();
         placeGhost();
-        initProbabilities(); // Initialize probabilities
+        ComputeInitialPriorProbabilities(); // Initialize probabilities
         updateProbabilityDisplay(); // Initial display update
     }
 
