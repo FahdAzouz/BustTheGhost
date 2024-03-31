@@ -11,13 +11,23 @@
 <body>
     <h1 id="title">Bust The Ghost</h1>
     <div id="game-container">
-        <div id="grid-container"></div>
-        <button id="peep-toggle">Peep</button>
-        <button id="bust-ghost">Bust</button>
-        <div id="status">
-            <p>Attempts Left: <span id="attempts">2</span></p>
-            <p>Score: <span id="score">20</span></p>
+        <div id="grid-and-compass-container">
+            <div id="grid-container"></div>
+            <div id="compass-and-status-container">
+                <button id="peep-toggle">Peep</button>
+                <button id="bust-ghost">Bust</button>
+                <div id="status">
+                    <p>Attempts Left: <span id="attempts">2</span></p>
+                    <p>Score: <span id="score">20</span></p>
+                </div>
+                <div id="compass-container">
+                    <img id="compass" src="images/compass.png" alt="Compass" style="display: none;"/>
+                    <p id="direction-label">Direction of Ghost</p>
+                </div>
+            </div>
         </div>
+
+
     </div>
     <script src="script.js"></script>
 </body>

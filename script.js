@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const attemptsElement = document.getElementById('attempts');
     const peepToggle = document.getElementById('peep-toggle');
     const bustButton = document.getElementById('bust-ghost');
+    const compassElement = document.getElementById('compass');
 
     let score = 20;
     let lastClickedCell = { row: null, col: null };
@@ -18,6 +19,13 @@ document.addEventListener('DOMContentLoaded', () => {
         3: { 'red': 0.05, 'orange': 0.15, 'yellow': 0.7, 'green': 0.1 },
         4: { 'red': 0.05, 'orange': 0.15, 'yellow': 0.7, 'green': 0.1 },
         5: { 'red': 0.00, 'orange': 0.00, 'yellow': 0.05, 'green': 0.95 },
+    };
+    const directionProbabilities = {
+        'N': 0.25,
+        'E': 0.25,
+        'S': 0.25,
+        'W': 0.25
+        // These probabilities can be adjusted to reflect the sensor's accuracy.
     };
 
     // Initialize the game
@@ -46,6 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
+
+    compassElement.style.display = 'block';
 
     // Randomly place the ghost in one of the cells
     function placeGhost() {
@@ -92,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function UpdatePosteriorGhostLocationProbabilities(Color, xclk, yclk) {
+    function UpdatePosteriorGhostLocationProbabilities(Color, xclk, yclk, sensorDirection) {
         let totalProbability = 0;
         const newProbabilities = {};
 
@@ -101,11 +111,12 @@ document.addEventListener('DOMContentLoaded', () => {
             for (let col = 0; col < gridSize.cols; col++) {
                 const key = `${row}-${col}`;
                 const distance = computeDistance(row, col, xclk, yclk);
-
+                const directionProbability = directionProbabilities[sensorDirection];
                 if (sensorProbabilities[distance] && sensorProbabilities[distance][Color] !== undefined) {
                     const likelihood = sensorProbabilities[distance][Color];
                     const prior = probabilities[key];
-                    const unnormalizedPosterior = likelihood * prior;
+                    const combinedLikelihood = likelihood * directionProbability;
+                    const unnormalizedPosterior = combinedLikelihood * prior;
                     newProbabilities[key] = unnormalizedPosterior;
                     totalProbability += unnormalizedPosterior;
                 } else {
@@ -136,13 +147,14 @@ document.addEventListener('DOMContentLoaded', () => {
         lastClickedCell = { row, col };
         if (attempts > 0) {
             const distance = computeDistance(row, col, ghostPosition.row, ghostPosition.col);
+            const direction = getDirectionSensorReading(row, col, ghostPosition.row, ghostPosition.col);
             const color = DistanceSense(1, 2, distance, 1, 1);
-            UpdatePosteriorGhostLocationProbabilities(color, row, col);
+            UpdatePosteriorGhostLocationProbabilities(color, row, col, direction);
             console.log(`Distance: ${distance}, Color: ${color}`); // For debugging
             updateCellColor(row, col, color);
             updateScore(-1);
             console.log(`Clicked cell at row ${row}, col ${col}, with color ${color}`);
-
+            updateDirectionDisplay(row, col, direction);
             if (isPeepOn) {
                 // Additional logic for peeping (showing probabilities) can be added here
                 updateProbabilityDisplay();
@@ -157,6 +169,20 @@ document.addEventListener('DOMContentLoaded', () => {
         return Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1));
     }
 
+    // Add a function to get the direction sensor reading based on the relative position of the ghost
+    function getDirectionSensorReading(clickedRow, clickedCol, ghostRow, ghostCol) {
+        // Assume the sensor indicates the direction of the ghost from the clicked cell
+        if (clickedRow === ghostRow && clickedCol === ghostCol) {
+            // If the ghost is on the clicked cell, randomly select a direction
+            const directions = ['N', 'E', 'S', 'W'];
+            return directions[Math.floor(Math.random() * directions.length)];
+        }
+
+        if (clickedRow > ghostRow) return 'N';
+        if (clickedRow < ghostRow) return 'S';
+        if (clickedCol > ghostCol) return 'W';
+        if (clickedCol < ghostCol) return 'E';
+    }
     // Updated getSensorColor function to use conditional probability distributions
     function DistanceSense(xclk, yclk, dist, gx, gy) {
         // Example conditional probabilities for when the distance is 3
@@ -230,6 +256,31 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error(`Could not find cell at row ${row}, col ${col}`); // Debugging line
         }
     }
+
+    function updateDirectionDisplay(row, col, direction) {
+
+        let rotationDegrees;
+        switch (direction) {
+            case 'N':
+                rotationDegrees = 0; // No rotation needed
+                break;
+            case 'E':
+                rotationDegrees = 90; // Rotate 90 degrees clockwise
+                break;
+            case 'S':
+                rotationDegrees = 180; // Rotate 180 degrees
+                break;
+            case 'W':
+                rotationDegrees = 270; // Rotate 270 degrees clockwise
+                break;
+            default:
+                rotationDegrees = 0; // Fallback to North if direction is unclear
+        }
+        compassElement.style.display = 'block'; // Make the compass visible
+        compassElement.style.transform = `rotate(${rotationDegrees}deg)`; // Rotate the compass
+    }
+
+
 
     // Update the score
     function updateScore(change) {

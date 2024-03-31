@@ -65,13 +65,48 @@ body {
     /* Ocean blue on hover */
 }
 
+#grid-and-compass-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+#compass-and-status-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+#compass-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+    /* Adjust as necessary */
+}
+
+#direction-label {
+    margin-top: 5px;
+    /* Adjust as necessary */
+    margin-left: 25px;
+    margin-right: 5px;
+    font-size: 0.8em;
+    /* Adjust as necessary */
+}
+
+#compass {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 25px;
+}
+
 button {
     background-color: #0077B6;
     /* Ocean blue for buttons */
     color: #ffffff;
     border: none;
-    padding: 10px 20px;
-    margin: 0 10px;
+    padding: 10px 20px 10px 20px;
+    margin: 10px 10px 10px 10px;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
@@ -83,7 +118,11 @@ button:hover {
 }
 
 #status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin-top: 20px;
+    font-size: 0.8em;
 }
 
 .probability-display {
